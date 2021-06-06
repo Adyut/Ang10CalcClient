@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataService } from './restClient';
 
 @Component({
   selector: 'app-calculator',
@@ -15,8 +16,10 @@ export class CalculatorComponent implements OnInit {
   memInUse = false;
   memInUseClass = 'memory-sign-off'; 
 
+  constructor(private dataService: DataService) { }
+
   public getNumber(v: string){
-    console.log(v);
+    // console.log(v);
     if(this.waitForSecondNumber)
     {
       this.currentNumber = (this.negativeOperand ? '-' : '') + v;
@@ -35,30 +38,40 @@ export class CalculatorComponent implements OnInit {
         this.currentNumber += '.'; 
     }
   }
+
+  // private doCalculation(op : string, secondOp: number){
+  //   switch (op){
+  //     case '+':
+  //     return this.firstOperand += secondOp; 
+  //     case '-': 
+  //     return this.firstOperand -= secondOp; 
+  //     case '*': 
+  //     return this.firstOperand *= secondOp; 
+  //     case '/': 
+  //     if(secondOp == 0){
+  //       return 0;
+  //     }
+  //     return this.firstOperand /= secondOp; 
+  //     case '=':
+  //     return secondOp;
+  //     case '!':
+  //     return secondOp * -1;
+  //     default:
+  //     return 0;
+  //   }
+  // }
+
   private doCalculation(op : string, secondOp: number){
-    switch (op){
-      case '+':
-      return this.firstOperand += secondOp; 
-      case '-': 
-      return this.firstOperand -= secondOp; 
-      case '*': 
-      return this.firstOperand *= secondOp; 
-      case '/': 
-      if(secondOp == 0){
-        return 0;
-      }
-      return this.firstOperand /= secondOp; 
-      case '=':
-      return secondOp;
-      case '!':
-      return secondOp * -1;
-      default:
-      return 0;
-    }
+    console.log("Request sending for '"+op+"' with args num1 : "+this.firstOperand+" and num2 : "+secondOp+".");
+    this.dataService.sendPostRequest(op, this.firstOperand, secondOp).subscribe(arg => {
+      this.currentNumber = String(arg);
+      this.firstOperand = Number(this.currentNumber);
+      console.log("Response is "+this.currentNumber+".");
+    })
   }
-  
+    
   public getOperation(op: string){
-    console.log("in getOperation " + op + " " + this.firstOperand + " " + this.operator );
+    // console.log("in getOperation " + op + " " + this.firstOperand + " " + this.operator );
 
     if((op === '-') && 
       ((this.currentNumber === '' && this.operator === '') ||
@@ -70,28 +83,24 @@ export class CalculatorComponent implements OnInit {
         this.firstOperand = Number(this.currentNumber);
   
       }else if(this.operator){
-        const result = this.doCalculation(this.operator , Number(this.currentNumber))
-        this.currentNumber = String(result);
-        this.firstOperand = result;
+        this.doCalculation(this.operator , Number(this.currentNumber))
       }
       this.operator = op;
       this.waitForSecondNumber = true;
     }
 
-    console.log(this.firstOperand);
+    // console.log(this.firstOperand);
   }
   
   public doOperation(op: string){
-    console.log(op);
+    // console.log(op);
 
     if(op === '!'){
       this.operator = op;
     }
     if(this.operator){
-      console.log(this.operator + " " + this.currentNumber);
-      const result = this.doCalculation(this.operator , Number(this.currentNumber))
-      this.currentNumber = String(result);
-      this.firstOperand = result;
+      // console.log(this.operator + " " + this.currentNumber);
+      this.doCalculation(this.operator , Number(this.currentNumber))
       this.waitForSecondNumber = true;
     }else if(this.firstOperand === 0){
       this.firstOperand = Number(this.currentNumber);
@@ -100,7 +109,7 @@ export class CalculatorComponent implements OnInit {
     this.operator = '';
     this.negativeOperand = false;
 
-    console.log(this.firstOperand);
+    // console.log(this.firstOperand);
   }
 
   public opOnMemory(){
@@ -127,7 +136,6 @@ export class CalculatorComponent implements OnInit {
     this.operator = '';
     this.waitForSecondNumber = false;
   }
-  constructor() { }
 
   ngOnInit(): void {
   }

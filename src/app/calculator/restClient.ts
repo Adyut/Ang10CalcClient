@@ -11,10 +11,10 @@ export class DataService {
 
   constructor(private httpClient: HttpClient) { }
 
-  public sendGetRequest(){
-    this.httpClient.post(this.REST_API_SERVER,{})
-    return this.httpClient.get(this.REST_API_SERVER);
-  }
+  // public sendGetRequest(){
+  //   this.httpClient.post(this.REST_API_SERVER,{})
+  //   return this.httpClient.get(this.REST_API_SERVER);
+  // }
 
   public sendPostRequest(op: string, num1: number, num2: number):Observable<Object>{
     let opPart = '';

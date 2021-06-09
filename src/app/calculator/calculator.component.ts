@@ -15,10 +15,12 @@ export class CalculatorComponent implements OnInit {
   memoryValue = 0;
   memInUse = false;
   memInUseClass = 'memory-sign-off'; 
+  lastClickedForResult = false;
 
   constructor(private dataService: DataService) { }
 
   public getNumber(v: string){
+    this.lastClickedForResult = false;
     // console.log(v);
     if(this.waitForSecondNumber)
     {
@@ -34,8 +36,15 @@ export class CalculatorComponent implements OnInit {
   }
 
   getDecimal(){
-    if(!this.currentNumber.includes('.')){
-        this.currentNumber += '.'; 
+    if(this.waitForSecondNumber || this.lastClickedForResult){
+      if(this.operator == ''){
+        this.firstOperand = 0;
+      }
+      this.lastClickedForResult = false;
+      this.waitForSecondNumber = false;
+      this.currentNumber = "0."
+    }else if(!this.currentNumber.includes('.')){
+      this.currentNumber += '.'; 
     }
   }
 
@@ -71,6 +80,7 @@ export class CalculatorComponent implements OnInit {
   }
     
   public getOperation(op: string){
+    this.lastClickedForResult = false;
     // console.log("in getOperation " + op + " " + this.firstOperand + " " + this.operator );
 
     if((op === '-') && 
@@ -82,8 +92,8 @@ export class CalculatorComponent implements OnInit {
       if(this.firstOperand === 0){
         this.firstOperand = Number(this.currentNumber);
   
-      }else if(this.operator){
-        this.doCalculation(this.operator , Number(this.currentNumber))
+      // }else if(this.operator){
+      //   this.doCalculation(this.operator , Number(this.currentNumber))
       }
       this.operator = op;
       this.waitForSecondNumber = true;
@@ -95,17 +105,17 @@ export class CalculatorComponent implements OnInit {
   public doOperation(op: string){
     // console.log(op);
 
+    this.lastClickedForResult = true;
     if(op === '!'){
       this.operator = op;
     }
     if(this.operator){
       // console.log(this.operator + " " + this.currentNumber);
       this.doCalculation(this.operator , Number(this.currentNumber))
-      this.waitForSecondNumber = true;
     }else if(this.firstOperand === 0){
       this.firstOperand = Number(this.currentNumber);
-      this.waitForSecondNumber = false;
     }
+    this.waitForSecondNumber = true;
     this.operator = '';
     this.negativeOperand = false;
 
